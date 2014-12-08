@@ -1,1 +1,9 @@
 <h1><%= @title %></h1>
+
+<h3>Meetups (that are in space)</h3>
+
+<ul>
+  <% @meetups.each do |meetup| %>
+    <li><h4><a href="/meetup/<%= meetup.id %>"><%= meetup.title %></a></h4></li>
+  <% end %>
+</ul>
