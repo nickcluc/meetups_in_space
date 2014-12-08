@@ -33,6 +33,24 @@ get '/' do
   erb :index
 end
 
+
+get '/create' do
+    erb :create
+end
+
+post '/create' do
+    require 'pry'
+    binding.pry
+    Meetup.create(
+    title: params[:title],
+    description: params[:description],
+    location: params[:location],
+    start_date: params[:start_date],
+    start_time: params[:start_time],
+    created_by: current_user.id )
+    redirect '/create'
+end
+
 get '/auth/github/callback' do
   auth = env['omniauth.auth']
 
