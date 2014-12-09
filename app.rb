@@ -47,7 +47,7 @@ post '/create' do
     start_date: params[:start_date],
     start_time: params[:start_time],
     created_by: current_user.id )
-    
+
     redirect "/meetup/#{meetup.id}"
 end
 
@@ -65,6 +65,14 @@ get '/auth/github/callback' do
   flash[:notice] = "You're now signed in as #{user.username}!"
 
   redirect '/'
+end
+
+post '/add_attendee' do
+  Attendee.create(
+  user_id: current_user.id,
+  meetup_id: params[:meetup]
+  )
+  redirect "/meetup/#{params[:meetup]}"
 end
 
 get '/sign_out' do
