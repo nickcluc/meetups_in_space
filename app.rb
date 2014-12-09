@@ -36,7 +36,8 @@ end
 
 
 get '/create' do
-    erb :create
+  authenticate!
+  erb :create
 end
 
 post '/create' do
@@ -47,12 +48,37 @@ post '/create' do
     start_date: params[:start_date],
     start_time: params[:start_time],
     created_by: current_user.id )
-
+    flash[:notice] = "Meetup Created!"
     redirect "/meetup/#{meetup.id}"
 end
 
+post '/delete_meetup' do
+  meetup_id = params[:meetup]
+  meetup = Meetup.find_by(
+  id: meetup_id
+  )
+  meetup.destroy
+  flash[:notice] = "You Have Deleted #{meetup.title}"
+  redirect '/'
+
+end
+
+post '/leave_meetup' do
+  meetup_id = params[:meetup]
+  attendee = Attendee.find_by(
+  user_id: current_user.id,
+  meetup_id: meetup_id
+  )
+  attendee.destroy
+  flash[:notice] = "You Left The Meetup"
+  redirect "/meetup/#{meetup_id}"
+end
+
 get '/meetup/:id' do
-  @meetup = Meetup.find_by id: params[:id]
+  meetup_id = params[:id]
+  # binding.pry
+  @comments = Comment.order('created_at DESC').where meetup_id: meetup_id
+  @meetup = Meetup.find_by id: meetup_id
   @user = User.find_by id: @meetup.created_by
   erb :show_meetup
 end
@@ -64,7 +90,7 @@ get '/auth/github/callback' do
   set_current_user(user)
   flash[:notice] = "You're now signed in as #{user.username}!"
 
-  redirect '/'
+  redirect back
 end
 
 post '/add_attendee' do
@@ -72,6 +98,18 @@ post '/add_attendee' do
   user_id: current_user.id,
   meetup_id: params[:meetup]
   )
+  flash[:notice] = "You Joined The Meetup"
+  redirect "/meetup/#{params[:meetup]}"
+end
+
+post '/add_comment' do
+  Comment.create(
+  title: params[:title],
+  comment: params[:comment],
+  meetup_id: params[:meetup],
+  user_id: current_user.id
+  )
+  flash[:notice] = "Comment Posted"
   redirect "/meetup/#{params[:meetup]}"
 end
 

@@ -1,15 +1,38 @@
-<h1><%= @meetup.title %></h1>
+
+  <span><h1><%= @meetup.title %></h1></span>
+  <span>
+  <% if signed_in? %>
+    <% if current_user.id == @meetup.created_by %>
+      <form action="/delete_meetup" method="post">
+        <input name="meetup" value="<%= @meetup.id %>" hidden>
+        <input type="submit" value="Delete Meetup">
+      </form>
+    <% end %>
+  <% end %>
+</span>
+
 <p>
-  <% unless @meetup.users.include?(current_user) %>
-    <form action="/add_attendee" method="post">
-      <input name="meetup" value="<%= @meetup.id %>" hidden>
-      <input type="submit" value="Join Meetup">
-    </form>
+  <% if signed_in? %>
+    <% if @meetup.users.include?(current_user) %>
+      <form action="/leave_meetup" method="post">
+        <input name="meetup" value="<%= @meetup.id %>" hidden>
+        <input type="submit" value="Leave <%=@meetup.title %>">
+      </form>
+    <% else %>
+      <form action="/add_attendee" method="post">
+        <input name="meetup" value="<%= @meetup.id %>" hidden>
+        <input type="submit" value="Join Meetup">
+      </form>
+    <% end %>
   <% end %>
 </p>
 
 <p>
   Meetup Name: <%= @meetup.title %>
+</p>
+
+<p>
+  Location: <%= @meetup.location %>
 </p>
 
 <p>
@@ -21,17 +44,42 @@
 </p>
 
 <p>
-  Location: <%= @meetup.location %>
+  Starts: <%= Date.parse(@meetup.start_date.to_s) %> @ <%= @meetup.start_time.strftime('%l:%M %p') %>
 </p>
 
 <p>
-  Starts: <%= @meetup.start_date %> @ <%= @meetup.start_time %>
-</p>
-
-<p>
+  <h4>Attendees</h4>
   <ul>
     <% @meetup.users.each do |user| %>
-      <li><a href="/users/<%= user.id %>"><img src="<%= user.avatar_url %>" alt="<%= user.username %>" width="100" height="100" /><%= user.username %></a></li>
+      <li ><a href="/users/<%= user.id %>"><img src="<%= user.avatar_url %>" alt="<%= user.username %>" width="100" height="100" /> - <%= user.username %></a></li>
+    <% end %>
+  </ul>
+</p>
+
+
+<% if signed_in? %>
+  <p>
+    Leave a comment about <%= @meetup.title %>:
+  </p>
+  <form action="/add_comment" method="post">
+    <input type="text" name="title" value="Subject">
+    <input type="textarea" name="comment" value="Leave a comment">
+    <input name="meetup" value="<%= @meetup.id %>" hidden>
+    <input type="submit">
+  </form>
+<% end %>
+<p>
+  <h4>Comments:</h4>
+  <ul>
+    <% @comments.each do |comment| %>
+      <li><%= User.find_by(id: comment.user_id).username %>
+        posted @ <%=comment.created_at.strftime('%A %B %-d, %Y @ %l:%M %p') %>:
+        <br>
+        <h4><%= comment.title %></h4>
+        <p>
+          <%= comment.comment %>
+        </p>
+      </li>
     <% end %>
   </ul>
 </p>
