@@ -47,7 +47,7 @@ post '/create' do
     start_date: params[:start_date],
     start_time: params[:start_time],
     created_by: current_user.id )
-    binding.pry
+    
     redirect "/meetup/#{meetup.id}"
 end
 
