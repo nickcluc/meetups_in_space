@@ -48,6 +48,7 @@ post '/create' do
     start_date: params[:start_date],
     start_time: params[:start_time],
     created_by: current_user.id )
+    Attendee.create(meetup_id: meetup.id, user_id: current_user.id)
     flash[:notice] = "Meetup Created!"
     redirect "/meetup/#{meetup.id}"
 end
